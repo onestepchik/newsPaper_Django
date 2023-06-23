@@ -1,0 +1,107 @@
+SkillFactory
+Остап Москаленко
+
+Все модели прописаны в приложении rest
+
+1. Создать двух пользователей (с помощью метода User.objects.create_user).
+
+from rest.models import User
+user1 = User.objects.create_user(username="user1", password="pass1")
+user2 = User.objects.create_user(username="user2", password="pass2")
+
+Я создал еще двух простых пользователей, которые не будут авторами
+
+casualUser1 = User.objects.create_user(username="casualUser1", password="casualPass1")
+casualUser2 = User.objects.create_user(username="casualUser2", password="casualPass2")
+
+
+2. Создать два объекта модели Author, связанные с пользователями.
+
+from rest.models import Author
+author1 = Author.objects.create(author=user1, rate=0)
+author2 = Author.objects.create(author=user2, rate=0)
+
+
+3. Добавить 4 категории в модель Category.
+
+from rest.models import Category
+cat_music = Category.objects.create(category_name="music")
+cat_lifestyle = Category.objects.create(category_name="lifestyle")
+cat_business = Category.objects.create(category_name="business")
+cat_politics = Category.objects.create(category_name="politics")
+
+
+4. Добавить 2 статьи и 1 новость.
+
+from rest.models import Post
+post_AR1 = Post.objects.create(author=author1, type_post = Post.type_Article, title = "Создание музыки на iPhone", content = "Самое удобное приложение Garage Band", rate = 0)
+post_AR2 = Post.objects.create(author=author1, type_post = Post.type_Article, title = "Создание музыки на macOs", content = "Самое удобное приложение Logic Pro X", rate = 0)
+post_NE1 = Post.objects.create(author=author2, type_post = Post.type_New, title = "В Калининграде с 1 июля вырастет аренда жилья по договору соцнайма", content = "Здесь хранится текст большой новости про повышение стоимости аренды жилья и так далее", rate = 0)
+
+
+5. Присвоить им категории (как минимум в одной статье/новости должно быть не меньше 2 категорий).
+
+from rest.models import PostCategory
+PostCategory.objects.create(post=post_AR1, category=cat_music)
+PostCategory.objects.create(post=post_AR1, category=cat_lifestyle)
+PostCategory.objects.create(post=post_AR2, category=cat_music)
+PostCategory.objects.create(post=post_AR2, category=cat_business)
+PostCategory.objects.create(post=post_NE1, category=cat_business)
+PostCategory.objects.create(post=post_NE1, category=cat_politics)
+
+
+6. Создать как минимум 4 комментария к разным объектам модели Post (в каждом объекте должен быть как минимум один комментарий).
+
+Comment.objects.create(post=post_AR1, user=casualUser1, comment="Отличная статья, спасибо!", rate=0)
+Comment.objects.create(post=post_AR1, user=user2, comment="Отличная статья, понравилось!", rate=0)
+Comment.objects.create(post=post_AR2, user=user, comment="Супер статья, отлично!", rate=0)
+Comment.objects.create(post=post_AR2, user=casualUser2, comment="Спасибо, статья полезная!", rate=0)
+Comment.objects.create(post=post_NE1, user=casualUser1, comment="Цены все выше и выше...", rate=0)
+Comment.objects.create(post=post_NE1, user=casualUser2, comment="Ну дела, жесть.", rate=0)
+
+
+7. Применяя функции like() и dislike() к статьям/новостям и комментариям, скорректировать рейтинги этих объектов.
+
+Comment.objects.all()[0].like()
+Comment.objects.all()[0].like()
+Comment.objects.all()[1].like()
+Comment.objects.all()[2].like()
+Comment.objects.all()[3].like()
+Comment.objects.all()[3].like()
+Comment.objects.all()[3].like()
+Comment.objects.all()[4].like()
+Comment.objects.all()[5].like()
+Comment.objects.all()[5].like()
+Comment.objects.all()[6].like()
+
+Post.objects.all()[0].like()
+Post.objects.all()[0].like()
+Post.objects.all()[0].like()
+Post.objects.all()[1].like()
+Post.objects.all()[1].like()
+Post.objects.all()[2].like()
+
+
+8. Обновить рейтинги пользователей.
+
+Author.objects.all()[0].update_rating()
+Author.objects.all()[0].update_rating()
+
+
+9. Вывести username и рейтинг лучшего пользователя (применяя сортировку и возвращая поля первого объекта).
+
+Author.objects.all().order_by("-rate").values("author","rate")[0]
+
+
+10. Вывести дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи, основываясь на лайках/дислайках к этой статье.
+
+Post.objects.all().order_by("-rate").values("date_create","author__author__username", "rate", "title")[0]
+
+Вывод превью
+
+Post.objects.all().order_by("-rate")[0].preview()
+
+
+11. Вывести все комментарии (дата, пользователь, рейтинг, текст) к этой статье.
+
+Comment.objects.filter(post=Post.objects.all().order_by("-rate")[0]).values("date_create", "user", "rate", "comment")
