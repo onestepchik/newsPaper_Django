@@ -1,5 +1,6 @@
 <!--  наследуемся от шаблона base.html -->
 {% extends 'layout/base.html' %}
+{% load custom_filters %}
 
 <!-- Название у нас будет proudcts -->
 {% block title %}
@@ -13,8 +14,8 @@ Post
 Тип поста {{post.type_post}}<br>
 Дата публикации {{post.date_create|date:'d M Y h:m'}}<br>
 Категории {{post.typepost}}<br>
-Заголовок {{post.categories}}<br>
-Текст {{post.content}}<br>
+Заголовок {{post.title|CensorF:''}}<br>
+Текст {{post.content|CensorF:''}}<br>
 Рейтинг {{post.rate}}<br>
 
 {% endblock content %}
