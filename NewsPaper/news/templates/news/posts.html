@@ -1,0 +1,81 @@
+<!--  наследуемся от шаблона base.html -->
+{% extends 'layout/base.html' %}
+{% load custom_filters %}
+<!-- Название у нас будет products -->
+{% block title %}
+Posts
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим все товары -->
+{% block content %}
+
+<h1>Отчет по всем постам сайта</h1>
+{% if posts %}
+<!-- Выводим продукты (блюда), только если они есть, с помощью тега if -->
+<h3>{{ time_now|date:'M d Y' }}</h3>
+<!-- Здесь мы применяем фильтр date. Он очень похож на метод strftime у даты. С его помощью мы можем выводить дату в нужном нам формате -->
+<h3> {{ posts|length }} </h3>
+<h3> {{ value1|default_if_none:"ничего" }} </h3>
+<!-- Здесь, если в переменной value1 будет записано None, то выведется текст НИЧЕГО -->
+
+<table class="table">
+   <tr>
+       <th scope="col">
+           ID
+       </th>
+       <th scope="col">
+           Название
+       </th>
+       <th scope="col">
+           Дата публикации
+       </th>
+       <th scope="col">
+           Категория
+       </th>
+       <th scope="col">
+           Контент
+       </th>
+       <th scope="col">
+           Автор
+        </th>
+       <th scope="col">
+           Рейтинг
+       </th>
+
+   </tr>
+   {% for post in posts %}
+   <!-- Для каждого товара будете генерироваться новая строчка, т.е. новый html-код. При этом сам цикл работает точно так же, как и в python. product -- переменная цикла, т.е. наш товар, взятый из общего списка -->
+   <tr>
+       <td>
+           {{ post.id }}
+       </td>   
+       <td>
+           {{ post.title|CensorF:'' }}
+       </td>
+       <td>
+        {{ post.date_create|date:'d M Y' }}
+       </td>
+       <td>
+           {{ post.type_post|multiply:1}}
+       </td>
+       
+       <td>
+           {{ post.content|truncatechars:50|CensorF:'' }}<!-- Дописываем специальный фильтр, чтобы ограничить количество символов до 2 - первая буква + многоточие. -->
+       </td>
+       
+       <td>
+           {{ post.author.id }}
+       </td>
+       
+       <td>
+           {{ post.rate }}
+       </td>
+   </tr>
+   {% endfor %}
+</table>
+{% else %}
+<!-- Если продуктов нет, то сообщаем об этом пользователю  -->
+<h2>Постов нет!</h2>
+{% endif %}
+
+{% endblock content %}

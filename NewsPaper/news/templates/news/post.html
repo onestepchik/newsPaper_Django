@@ -1,0 +1,29 @@
+<!--  наследуемся от шаблона base.html -->
+{% extends 'layout/base.html' %}
+
+<!-- Название у нас будет proudcts -->
+{% block title %}
+Post
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим все товары -->
+{% block content %}
+<h1>Пост</h1>
+Автор {{ post.author }}<br>
+Тип поста {{post.type_post}}<br>
+Дата публикации {{post.date_create|date:'d M Y h:m'}}<br>
+Категории {{post.typepost}}<br>
+Заголовок {{post.categories}}<br>
+Текст {{post.content}}<br>
+Рейтинг {{post.rate}}<br>
+
+{% endblock content %}
+
+
+author = models.ForeignKey(Author, on_delete = models.CASCADE)
+type_post = models.CharField(max_length = 255, choices=TYPES, default=type_Article)
+date_create = models.DateTimeField(auto_now_add = True)
+categories = models.ManyToManyField(Category, through = 'PostCategory')
+title = models.CharField(max_length = 255)
+content =  models.TextField(default = "Текст новости/статьи")
+rate = models.IntegerField(default = 0)
