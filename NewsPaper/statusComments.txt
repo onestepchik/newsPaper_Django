@@ -1,5 +1,0 @@
-Остановился на форме добавления поста в БД через сайт.
-По итогу выскакивает ошибка
-'PostsList' object has no attribute 'form_class'
-
-Урок https://apps.skillfactory.ru/learning/course/course-v1:Skillfactory+PWS-v.2.0+7AUG2020/block-v1:Skillfactory+PWS-v.2.0+7AUG2020+type@sequential+block@034b05dedda544e7849d6259a75341ed/block-v1:Skillfactory+PWS-v.2.0+7AUG2020+type@vertical+block@7b97e3ab54554affa5422d09b02b7217
