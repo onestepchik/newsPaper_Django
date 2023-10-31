@@ -9,73 +9,155 @@ Posts
 <!-- В контенте на странице мы выводим все товары -->
 {% block content %}
 
-<h1>Отчет по всем постам сайта</h1>
+<h1>Все новости сайта</h1>
 {% if posts %}
 <!-- Выводим продукты (блюда), только если они есть, с помощью тега if -->
-<h3>{{ time_now|date:'M d Y' }}</h3>
+<h3>Время: {{ time_now|date:'M d Y' }}</h3>
 <!-- Здесь мы применяем фильтр date. Он очень похож на метод strftime у даты. С его помощью мы можем выводить дату в нужном нам формате -->
-<h3> {{ posts|length }} </h3>
-<h3> {{ value1|default_if_none:"ничего" }} </h3>
+<h3>Всего новостей: {{ posts|length }} </h3>
+<h3> {{ value1|default_if_none:"переменная value1 пустая" }} </h3>
 <!-- Здесь, если в переменной value1 будет записано None, то выведется текст НИЧЕГО -->
+{% if noFiltersPage %}
+
+{% else %}
+<form method="GET">
+    {{ filter.form }}
+    <!-- Форму от фильтров за нас сделает Django. А вот кнопку, увы, придётся делать самим -->
+    <input class="btn btn-primary" type="submit" value="Найти">
+</form>
+{% endif %}
 
 <table class="table">
-   <tr>
-       <th scope="col">
-           ID
-       </th>
-       <th scope="col">
-           Название
-       </th>
-       <th scope="col">
-           Дата публикации
-       </th>
-       <th scope="col">
-           Категория
-       </th>
-       <th scope="col">
-           Контент
-       </th>
-       <th scope="col">
-           Автор
+    <tr>
+        <th scope="col">
+            ID
         </th>
-       <th scope="col">
-           Рейтинг
-       </th>
+        <th scope="col">
+            Название
+        </th>
+        <th scope="col">
+            Дата публикации
+        </th>
+        <th scope="col">
+            Категория
+        </th>
+        <th scope="col">
+            Контент
+        </th>
+        <th scope="col">
+            Автор
+        </th>
+        <th scope="col">
+            Рейтинг
+        </th>
+        <th scope="col">
+            Действия
+        </th>
 
-   </tr>
-   {% for post in posts %}
-   <!-- Для каждого товара будете генерироваться новая строчка, т.е. новый html-код. При этом сам цикл работает точно так же, как и в python. product -- переменная цикла, т.е. наш товар, взятый из общего списка -->
-   <tr>
-       <td>
-           {{ post.id }}
-       </td>   
-       <td>
-           {{ post.title|CensorF:'' }}
-       </td>
-       <td>
-        {{ post.date_create|date:'d M Y' }}
-       </td>
-       <td>
-           {{ post.type_post|multiply:1}}
-       </td>
-       
-       <td>
-           {{ post.content|truncatechars:50|CensorF:'' }}<!-- Дописываем специальный фильтр, чтобы ограничить количество символов до 2 - первая буква + многоточие. -->
-       </td>
-       
-       <td>
-           {{ post.author.id }}
-       </td>
-       
-       <td>
-           {{ post.rate }}
-       </td>
-   </tr>
-   {% endfor %}
+    </tr>
+
+    {% if noFiltersPage %}
+    {% for post in posts %}
+    <!-- Для каждого товара будете генерироваться новая строчка, т.е. новый html-код. При этом сам цикл работает точно так же, как и в python. product -- переменная цикла, т.е. наш товар, взятый из общего списка -->
+    <tr>
+        <td>
+            {{ post.id }}
+        </td>
+        <td>
+            
+            <a href="{% url 'news:post_detail' post.id %}">
+                <!-- здесь
+                    news -- название приложения, которое задано в urls.py с помощью директивы app_name,
+                    post_detail -- название ссылки в списке эндпойнтов urlpatterns,
+                    post.id -- id объекта, который передаётся в качестве через эндпойнт и подставляется вместо <int:pk>
+                        -->
+                    {{ post.title|CensorF:'' }}
+                </a>
+                <!-- При нажатии на название в таблице нас теперь будет перекидывать на страницу с информацией о товаре/продукте -->
+        </td>
+        <td>
+            {{ post.date_create|date:'d M Y' }}
+        </td>
+        <td>
+            {{ post.type_post|multiply:1}}
+        </td>
+
+        <td>
+            {{ post.content|truncatechars:50|CensorF:''}}<!-- Дописываем специальный фильтр, чтобы ограничить количество символов до 2 - первая буква + многоточие. -->
+        </td>
+
+        <td>
+            {{ post.author }}
+        </td>
+
+        <td>
+            {{ post.rate }}
+        </td>
+
+        <td>
+            <a href="{% url 'news:post_update' post.id %}">
+                Update
+            </a>
+            <a href="{% url 'news:post_delete' post.id %}">
+                Delete
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+    {% else %}
+    {% for post in filter.qs %}
+    <!-- Для каждого товара будете генерироваться новая строчка, т.е. новый html-код. При этом сам цикл работает точно так же, как и в python. product -- переменная цикла, т.е. наш товар, взятый из общего списка -->
+    <tr>
+        <td>
+            {{ post.id }}
+        </td>
+        <td>
+            {{ post.title|CensorF:'' }}
+        </td>
+        <td>
+            {{ post.date_create|date:'d M Y' }}
+        </td>
+        <td>
+            {{ post.type_post|multiply:1}}
+        </td>
+
+        <td>
+            {{ post.content|truncatechars:50|CensorF:''}}<!-- Дописываем специальный фильтр, чтобы ограничить количество символов до 2 - первая буква + многоточие. -->
+        </td>
+
+        <td>
+            {{ post.author }}
+        </td>
+
+        <td>
+            {{ post.rate }}
+        </td>
+        <td>
+            <a href="{% url 'news:post_update' post.id %}">
+                Update
+            </a>
+            <a href="{% url 'news:post_delete' post.id %}">
+                Delete
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+    {% endif %}
 </table>
+
+<!-- Заменили код пагинатора на подключение шаблона с этим кодом -->
+{% include 'news/parts/paginator.html' %}
+
 {% else %}
 <!-- Если продуктов нет, то сообщаем об этом пользователю  -->
 <h2>Постов нет!</h2>
 {% endif %}
+<h2>Форма добавления новости:</h2>
+<form method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <!-- Теперь нам нужна только готовая форма и кнопка -->
+    <input class="btn btn-success" type="submit" value="Add">
+ </form>
 
 {% endblock content %}

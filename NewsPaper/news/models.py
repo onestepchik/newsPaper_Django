@@ -20,8 +20,13 @@ class Author(models.Model):
         self.rate = total_rate
         self.save()
 
+    def __str__(self):
+       return f'{self.author.username}'
+
 class Category(models.Model):
     category_name = models.CharField(max_length = 255, unique=True)
+    def __str__(self):
+       return f'Category {self.category_name}'
 
 class Post(models.Model):
     type_Article = 'AR'
@@ -48,8 +53,10 @@ class Post(models.Model):
         self.save()
     def preview(self):
         return self.content[:124] + "..."
+    def get_absolute_url(self): # добавим абсолютный путь, чтобы после создания нас перебрасывало на страницу с постом
+       return f'/post/{self.id}'
     
-
+    
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete = models.CASCADE)
     category = models.ForeignKey(Category, on_delete = models.CASCADE)

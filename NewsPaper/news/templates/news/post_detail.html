@@ -1,0 +1,26 @@
+{% extends 'layout/base.html' %}
+{% load custom_filters %}
+
+{% block title %}
+Post
+{% endblock title %}
+
+{% block content %}
+<div class="card">
+ <div class="card-header">
+   <h3>
+     {{ post.title|CensorF:'' }}
+   </h3>
+   <div>
+     Автор: <span class="badge bg-info">{{ post.author }}</span>
+     Тип поста: <span class="badge bg-info">{{ post.type_post }}</span>
+     Дата публикации: <span class="badge bg-info">{{ post.date_create|date:'d M Y h:m' }}</span>
+     Рейтинг: <span class="badge bg-info">{{ post.rate }}</span>
+   </div>
+ </div>
+ <div class="card-body">
+   {{ post.content|CensorF:'' }}
+ </div>
+</div>
+
+{% endblock content %}
