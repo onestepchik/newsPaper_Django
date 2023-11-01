@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from .views import PostsList, PostDetail ,Posts, PostCreateView, PostDeleteView, PostUpdateView, PostDetailView 
- 
+from .views import upgrade_me 
 app_name = 'news'
 urlpatterns = [
     # path -- означает путь. В данном случае путь ко всем товарам у нас останется пустым, позже станет ясно почему
@@ -14,4 +14,5 @@ urlpatterns = [
     path('<int:pk>/delete/', PostDeleteView.as_view(), name='post_delete'), # Ссылка на удаеление поста
  
     path('search/', PostsList.as_view()), # Не забываем добавить эндпойнт для нового класса-представления. 
+    path('upgrade/', upgrade_me, name = 'upgrade'),
 ]

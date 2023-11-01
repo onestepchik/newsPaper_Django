@@ -11,6 +11,13 @@ from .filters import PostFilter # импортируем недавно напи
 from .forms import PostForm # импортируем нашу форму
 
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.shortcuts import redirect 
+from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
+
 
 class PostsList(ListView):
     model = Post
@@ -55,7 +62,7 @@ class PostDetail(DetailView):
 
 #        return render(request, 'news/posts.html', data)        
     
-class Posts(ListView):
+class Posts(LoginRequiredMixin, ListView):
     model = Post
     template_name = 'news/posts.html'
     context_object_name = 'posts'
@@ -70,6 +77,7 @@ class Posts(ListView):
         context['value1'] = None
         context['noFiltersPage'] = True
         context['form'] = PostForm()
+        context['is_not_premium'] = not self.request.user.groups.filter(name = 'authors').exists()
         return context    
         
     def post(self, request, *args, **kwargs):
@@ -88,10 +96,11 @@ class PostDetailView(DetailView):
    queryset = Post.objects.all()
 
 # дженерик для создания объекта. Надо указать только имя шаблона и класс формы, который мы написали в прошлом юните. Остальное он сделает за вас
-class PostCreateView(CreateView):
+class PostCreateView(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
    template_name = 'news/post_create.html'
    form_class = PostForm
-   
+   permission_required = ('news.add_post',
+                          'news.change_post')
 
    def post(self, request, *args, **kwargs):
         # self.object = self.get_object() # assign the object to the view
@@ -104,11 +113,12 @@ class PostCreateView(CreateView):
    
 
 # дженерик для редактирования объекта
-class PostUpdateView(UpdateView):
+class PostUpdateView(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
    template_name = 'news/post_create.html'
    form_class = PostForm
    success_url = reverse_lazy('news:posts')
-
+   permission_required = ('news.change_post')
+   
    # метод get_object мы используем вместо queryset, чтобы получить информацию об объекте который мы собираемся редактировать
    def get_object(self, **kwargs):
        id = self.kwargs.get('pk')
@@ -124,7 +134,16 @@ class PostUpdateView(UpdateView):
 #         return super().get(request, *args, **kwargs)   
 
 # дженерик для удаления товара
-class PostDeleteView(DeleteView):
+class PostDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
    template_name = 'news/post_delete.html'
    queryset = Post.objects.all()
    success_url = reverse_lazy('news:posts') # не забываем импортировать функцию reverse_lazy из пакета django.urls
+   permission_required = ('news.delete_post')
+   
+@login_required
+def upgrade_me(request):
+   user = request.user
+   premium_group = Group.objects.get(name='authors')
+   if not request.user.groups.filter(name='authors').exists():
+       premium_group.user_set.add(user)
+   return redirect('/news')

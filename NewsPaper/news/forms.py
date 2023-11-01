@@ -2,6 +2,9 @@ from django.forms import ModelForm
 from .models import Post
 from django import forms
 
+from allauth.account.forms import SignupForm
+from django.contrib.auth.models import Group
+
 # Создаём модельную форму
 class PostForm(ModelForm):
 # В класс мета, как обычно, надо написать модель, по которой будет строиться форма, и нужные нам поля. Мы уже делали что-то похожее с фильтрами
@@ -38,4 +41,13 @@ class PostForm(ModelForm):
     # content =  models.TextField(default = "Текст новости/статьи")
     # rate = models.IntegerField(default = 0)
 
+
+
+class BasicSignupForm(SignupForm):
+  
+   def save(self, request):
+       user = super(BasicSignupForm, self).save(request)
+       basic_group = Group.objects.get_or_create(name='common')[0]
+       basic_group.user_set.add(user)
+       return user
        
