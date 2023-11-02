@@ -101,6 +101,9 @@ Posts
             <a href="{% url 'news:post_delete' post.id %}">
                 Delete
             </a>
+            <a href="{% url 'news:subscribe' post.id %}">
+                Subscribe
+            </a>
         </td>
     </tr>
     {% endfor %}
@@ -138,6 +141,9 @@ Posts
             </a>
             <a href="{% url 'news:post_delete' post.id %}">
                 Delete
+            </a>
+            <a href="{% url 'news:subscribe' post.id %}">
+                Subscribe
             </a>
         </td>
     </tr>

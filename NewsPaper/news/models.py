@@ -25,8 +25,13 @@ class Author(models.Model):
 
 class Category(models.Model):
     category_name = models.CharField(max_length = 255, unique=True)
+    subscribers = models.ManyToManyField(User, through = 'SubscriberCategory')
     def __str__(self):
        return f'Category {self.category_name}'
+
+class SubscriberCategory(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    category = models.ForeignKey(Category, on_delete = models.CASCADE)
 
 class Post(models.Model):
     type_Article = 'AR'

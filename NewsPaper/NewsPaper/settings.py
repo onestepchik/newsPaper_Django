@@ -113,6 +113,12 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 ACCOUNT_FORMS = {'signup': 'news.forms.BasicSignupForm'}
 
+EMAIL_HOST = 'mail.nic.ru' # адрес сервера Яндекс-почты для всех один и тот же
+EMAIL_PORT = 2525 # порт smtp сервера тоже одинаковый
+EMAIL_HOST_USER = 'ostapdev@epoha.ru' # ваше имя пользователя, например если ваша почта user@yandex.ru, то сюда надо писать user, иными словами, это всё то что идёт до собаки
+EMAIL_HOST_PASSWORD = '1qazXSW@' # пароль от почты
+EMAIL_USE_SSL = False # Яндекс использует ssl, подробнее о том, что это, почитайте на Википедии, но включать его здесь обязательно
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 

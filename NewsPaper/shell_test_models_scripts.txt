@@ -102,7 +102,6 @@ Post.objects.all().order_by("-rate").values("date_create","author__author__usern
 
 Post.objects.all().order_by("-rate")[0].preview()
 
-
 11. Вывести все комментарии (дата, пользователь, рейтинг, текст) к этой статье.
 
 Comment.objects.filter(post=Post.objects.all().order_by("-rate")[0]).values("date_create", "user", "rate", "comment")
