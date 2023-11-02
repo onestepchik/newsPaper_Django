@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-u4#2gev(9fktjg4pdjw4@jejf3j_1tp=h2n7$7jef3024kugit
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'news',
-
+    'django.contrib.sites',
     #########
     # 3rd party apps
     #########
@@ -103,20 +103,22 @@ AUTHENTICATION_BACKENDS = [
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/news'
+
+DEFAULT_FROM_EMAIL = 'ostapdev@epoha.ru' # здесь указываем уже свою ПОЛНУЮ почту с которой будут отправляться письма 
 SITE_ID = 1
 
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
 ACCOUNT_FORMS = {'signup': 'news.forms.BasicSignupForm'}
 
 EMAIL_HOST = 'mail.nic.ru' # адрес сервера Яндекс-почты для всех один и тот же
 EMAIL_PORT = 2525 # порт smtp сервера тоже одинаковый
 EMAIL_HOST_USER = 'ostapdev@epoha.ru' # ваше имя пользователя, например если ваша почта user@yandex.ru, то сюда надо писать user, иными словами, это всё то что идёт до собаки
-EMAIL_HOST_PASSWORD = '1qazXSW@' # пароль от почты
+EMAIL_HOST_PASSWORD = '' # пароль от почты
 EMAIL_USE_SSL = False # Яндекс использует ssl, подробнее о том, что это, почитайте на Википедии, но включать его здесь обязательно
 
 # Password validation
