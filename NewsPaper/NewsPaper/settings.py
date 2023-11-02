@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
-    'news',
+    'django_apscheduler',
+    'news.apps.RestConfig',
     'django.contrib.sites',
     #########
     # 3rd party apps
@@ -90,6 +91,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 20,  # in seconds
+            # see also
+            # https://docs.python.org/3.7/library/sqlite3.html#sqlite3.connect
+        }
     }
 }
 
@@ -104,7 +110,9 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/news'
 
+SERVER_EMAIL = 'ostapdev@epoha.ru'
 DEFAULT_FROM_EMAIL = 'ostapdev@epoha.ru' # здесь указываем уже свою ПОЛНУЮ почту с которой будут отправляться письма 
+
 SITE_ID = 1
 
 ACCOUNT_EMAIL_REQUIRED = True
@@ -120,6 +128,16 @@ EMAIL_PORT = 2525 # порт smtp сервера тоже одинаковый
 EMAIL_HOST_USER = 'ostapdev@epoha.ru' # ваше имя пользователя, например если ваша почта user@yandex.ru, то сюда надо писать user, иными словами, это всё то что идёт до собаки
 EMAIL_HOST_PASSWORD = '' # пароль от почты
 EMAIL_USE_SSL = False # Яндекс использует ssl, подробнее о том, что это, почитайте на Википедии, но включать его здесь обязательно
+
+MANAGERS = [
+    ('CREATOR', 'ostap@epoha.ru'),
+]
+
+# формат даты, которую будет воспринимать наш задачник(вспоминаем урок по фильтрам) 
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+ 
+# если задача не выполняется за 25 секунд, то она автоматически снимается, можете поставить время побольше, но как правило, это сильно бьёт по производительности сервера
+APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

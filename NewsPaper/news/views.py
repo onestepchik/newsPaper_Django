@@ -4,7 +4,7 @@ from django.core.paginator import Paginator # Импортируем класс,
 
 from typing import Any
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
-from .models import Post, Category, SubscriberCategory, User
+from .models import Post, Category, SubscriberCategory, User, Author
 from datetime import datetime
 
 from .filters import PostFilter # импортируем недавно написанный фильтр
@@ -20,11 +20,12 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives # импортируем класс для создание объекта письма с html
-from datetime import datetime
- 
+
+from datetime import datetime, timedelta, time
+from django.utils import timezone 
  
 from django.template.loader import render_to_string # импортируем функцию, которая срендерит наш html в текст
-
+from django.core.mail import mail_managers
 
 class PostsList(ListView):
     model = Post
@@ -121,39 +122,51 @@ class PostCreateView(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
         
         form = self.form_class(request.POST) # создаём новую форму, забиваем в неё данные из POST-запроса
         if form.is_valid(): # если пользователь ввёл всё правильно и нигде не накосячил, то сохраняем новый товар
-            post = form.save()
-
-            user = self.request.user
-            needPush = False
-            pushUsers = []
-            for cat in post.categories.all():
-                s = SubscriberCategory.objects.all().filter(category = cat).values('user')
-                if len(s) > 0:
-                    for user in s:
-                        if user not in pushUsers:
-                            pushUsers.append(user)
-                            needPush = True
-
-            for userForEmail in pushUsers:
-                usr = User.objects.get(pk=userForEmail['user'])
-                # получем наш html
-                html_content = render_to_string( 
-                    'news/post_created_email.html',
-                    {
-                        'post': post,
-                        'userName':usr.username
-                    }
+            # Проверка на максимум постов автора в день
+            today_min = datetime.combine(timezone.now().date(), datetime.today().time().min)
+            today_max = datetime.combine(timezone.now().date(), datetime.today().time().max)
+            auth = Author.objects.get(pk=request.POST['author'])
+            posts_for_today = Post.objects.filter(date_create__range=(today_min, today_max), author = auth)
+            if len(posts_for_today) >= 3:
+                print('ПРЕВЫШЕН ЛИМИТ ПОСТИНГА')
+                mail_managers(
+                    subject='Превышено количество постов',
+                    message='Ошибка на сайте',
                 )
+            else:
+
+                post = form.save()
+
+                user = self.request.user
+                pushUsers = []
+                for cat in post.categories.all():
+                    s = SubscriberCategory.objects.all().filter(category = cat).values('user')
+                    if len(s) > 0:
+                        for user in s:
+                            if user not in pushUsers:
+                                pushUsers.append(user)
+                                
+
+                for userForEmail in pushUsers:
+                    usr = User.objects.get(pk=userForEmail['user'])
+                    # получем наш html
+                    html_content = render_to_string( 
+                        'news/post_created_email.html',
+                        {
+                            'post': post,
+                            'userName':usr.username
+                        }
+                    )
                 
-                # в конструкторе уже знакомые нам параметры, да? Называются правда немного по другому, но суть та же.
-                msg = EmailMultiAlternatives(
-                    subject=f'{post.author}',
-                    body=post.content, #  это то же, что и message
-                    from_email='ostapdev@epoha.ru',
-                    to=[usr.email], # это то же, что и recipients_list
-                )
-                msg.attach_alternative(html_content, "text/html") # добавляем html
-                msg.send() # отсылаем
+                    # в конструкторе уже знакомые нам параметры, да? Называются правда немного по другому, но суть та же.
+                    msg = EmailMultiAlternatives(
+                        subject=f'{post.author}',
+                        body=post.content, #  это то же, что и message
+                        from_email='ostapdev@epoha.ru',
+                        to=[usr.email], # это то же, что и recipients_list
+                    )
+                    msg.attach_alternative(html_content, "text/html") # добавляем html
+                    msg.send() # отсылаем
 
         return super().get(request, *args, **kwargs)
    
@@ -194,6 +207,7 @@ def upgrade_me(request):
        premium_group.user_set.add(user)
    return redirect('/news')
 
+# Я добавил в колонке действия кнопку подписаться, она подписывает текущего пользователя на все категории выбранного поста 
 @login_required
 def subscribe_me(request, **kwargs):
    user = request.user
