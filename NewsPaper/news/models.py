@@ -27,7 +27,7 @@ class Category(models.Model):
     category_name = models.CharField(max_length = 255, unique=True)
     subscribers = models.ManyToManyField(User, through = 'SubscriberCategory')
     def __str__(self):
-       return f'Category {self.category_name}'
+       return f'{self.category_name}'
 
 class SubscriberCategory(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE)
@@ -50,6 +50,13 @@ class Post(models.Model):
     content =  models.TextField(default = "Текст новости/статьи")
     rate = models.IntegerField(default = 0)
 
+    @property
+    def FeaturedPost(self):
+        return self.rate > 10
+    
+    def __str__(self):
+        return f'{self.title}'
+    
     def like(self):
         self.rate+=1
         self.save()

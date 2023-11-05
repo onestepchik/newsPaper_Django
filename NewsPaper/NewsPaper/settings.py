@@ -22,8 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-u4#2gev(9fktjg4pdjw4@jejf3j_1tp=h2n7$7jef3024kugit'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
@@ -87,17 +86,30 @@ WSGI_APPLICATION = 'NewsPaper.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#         'OPTIONS': {
+#             'timeout': 20,  # in seconds
+#             # see also
+#             # https://docs.python.org/3.7/library/sqlite3.html#sqlite3.connect
+#         }
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 20,  # in seconds
-            # see also
-            # https://docs.python.org/3.7/library/sqlite3.html#sqlite3.connect
-        }
-    }
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': '147896325',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    },
 }
+
+
 
 AUTHENTICATION_BACKENDS = [
    # Needed to login by username in Django admin, regardless of `allauth`
@@ -139,6 +151,15 @@ APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 # если задача не выполняется за 25 секунд, то она автоматически снимается, можете поставить время побольше, но как правило, это сильно бьёт по производительности сервера
 APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'cache_files'), # Указываем, куда будем сохранять кэшируемые файлы! Не забываем создать папку cache_files внутри папки с manage.py!
+        'TIMEOUT': 30,
+    }
+}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -156,6 +177,146 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'fileSecurityInfoFormatter': {
+            'format': '{asctime} {levelname} {module} {message}',
+        'style': '{',  
+        },
+        'fileErrorAndCriticalFormatter': {
+            'format': '{asctime} {levelname} {message} {pathname} {exc_info}',
+        'style': '{',  
+        },
+        'infoFormatter': {
+            'format': '{asctime} {levelname} {module} {message}',
+        'style': '{',  
+        },
+        'debugFormatter': {
+            'format': '{asctime} {levelname} {message}',
+        'style': '{',  
+        },
+        'warningFormatter': {
+            'format': '{pathname} {asctime} {levelname} {message}',
+        'style': '{',  
+        },
+        'errorAndCriticalErrorFormatter': {
+            'format': '{pathname} {asctime} {levelname} {message} {exc_info}',
+        'style': '{',  
+        },
+        'mailErrorAndCriticalErrorFormatter': {
+            'format': '{pathname} {asctime} {levelname} {message}',
+        'style': '{',  
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'fileLogSecurity': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.FileHandler',
+            'formatter': 'fileSecurityInfoFormatter',
+            'filename': 'security.log'
+        },
+        'fileLogInfo': {
+            'level': 'INFO',
+            'filters': ['require_debug_false'],
+            'class': 'logging.FileHandler',
+            'formatter': 'infoFormatter',
+            'filename': 'general.log'
+        },
+        'fileLogError': {
+            'level': 'ERROR',
+            'filters': ['require_debug_true'],
+            'class': 'logging.FileHandler',
+            'formatter': 'fileErrorAndCriticalFormatter',
+            'filename': 'errors.log'
+        },
+        'fileLogCriticalError': {
+            'level': 'CRITICAL',
+            'filters': ['require_debug_true'],
+            'class': 'logging.FileHandler',
+            'formatter': 'fileErrorAndCriticalFormatter',
+            'filename': 'errors.log'
+        },
+        'consoleDebug': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'debugFormatter'
+        },
+        'consoleWarnings': {
+            'level': 'WARNING',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'warningFormatter'
+        },
+        'consoleErrors': {
+            'level': 'ERROR',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'errorAndCriticalErrorFormatter'
+        },
+        'consoleCriticalErrors': {
+            'level': 'CRITICAL',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'errorAndCriticalErrorFormatter'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'mailErrorAndCriticalErrorFormatter'
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['fileLogInfo', 'consoleDebug', 'consoleWarnings', 'consoleErrors', 'consoleCriticalErrors'],
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['mail_admins', 'fileLogError', 'fileLogCriticalError'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.server': {
+            'handlers': ['mail_admins', 'fileLogError', 'fileLogCriticalError'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.template': {
+            'handlers': ['fileLogError', 'fileLogCriticalError'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.db_backends': {
+            'handlers': ['fileLogError', 'fileLogCriticalError'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['fileLogSecurity'],
+            'level': 'INFO',
+            'propagate': False,
+        }
+        
+    }
+}
+
+
 
 # AUTH_USER_MODEL = 'rest.UserAbs'
 
